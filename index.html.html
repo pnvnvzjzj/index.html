@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Manajemen Absensi Siswa</title>
+<style>
+:root{color-scheme:light;--bg:#f5f7ff;--card:#fff;--tx:#1e2433;--mut:#6b7488;--bd:#e4e8f0;--pri:#4f46e5;--pri2:#eef0ff;--side:#ffffff;
+--hadir:#16a34a;--izin:#d97706;--sakit:#0284c7;--alpa:#dc2626;--sh:0 1px 3px rgba(20,30,60,.08),0 6px 18px rgba(20,30,60,.05)}
+*{box-sizing:border-box;margin:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5}
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.side{background:var(--side);border-right:1px solid var(--bd);color:#475069;padding:22px 14px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh}
+.brand{display:flex;gap:11px;align-items:center;padding:0 8px}
+.brand b{display:block;color:var(--tx);font-size:15px}.brand small{color:var(--mut)}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav button{all:unset;cursor:pointer;padding:11px 14px;border-radius:10px;display:flex;gap:10px;align-items:center;font-weight:500}
+.nav button:hover{background:var(--pri2)}.nav button.on{background:var(--pri);color:#fff}
+.nav i{font-style:normal;width:20px;text-align:center}
+.nav button.on em{background:#ffffff33}.nav em{margin-left:auto;font-style:normal;font-size:11px;background:var(--bd);padding:1px 8px;border-radius:99px}
+.main{padding:28px;max-width:1150px;width:100%}
+h1{font-size:24px}h2{font-size:16px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.top p,.mut{color:var(--mut)}
+.page{display:none}.page.on{display:block;animation:f .25s}
+@keyframes f{from{opacity:0;transform:translateY(6px)}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:20px;box-shadow:var(--sh);margin-bottom:18px}
+.head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:18px}
+.stat{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;box-shadow:var(--sh);border-top:4px solid var(--c)}
+.stat small{color:var(--mut);font-weight:600;letter-spacing:.04em}.stat b{display:block;font-size:30px;line-height:1.2;color:var(--c)}
+.two{display:grid;grid-template-columns:260px 1fr;gap:18px}
+input,select{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:9px 12px;min-width:0}
+input:focus,select:focus{outline:2px solid var(--pri);border-color:transparent}
+label{display:block;font-weight:600;font-size:12px;margin-bottom:4px;color:var(--mut)}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;align-items:end}
+.form input,.form select{width:100%}
+.filters{display:flex;gap:10px;flex-wrap:wrap}.filters input[type=search]{flex:1;min-width:180px}
+.btn{font:inherit;font-weight:600;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;padding:9px 15px}
+.btn:hover{border-color:var(--pri)}.btn.pri{background:var(--pri);border-color:var(--pri);color:#fff}
+.btn.del{color:var(--alpa);padding:5px 10px;font-size:12px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);padding:10px 12px;border-bottom:1px solid var(--bd);white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid var(--bd);white-space:nowrap}
+tr:hover td{background:var(--pri2)}
+.av{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--pri2);color:var(--pri);font-weight:700;margin-right:9px;font-size:12px}
+.badge{padding:3px 11px;border-radius:99px;font-size:12px;font-weight:700;background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c)}
+.hadir{--c:var(--hadir)}.izin{--c:var(--izin)}.sakit{--c:var(--sakit)}.alpa{--c:var(--alpa)}.belum{--c:var(--mut)}
+.seg{display:inline-flex;gap:4px}
+.seg button{font:inherit;font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--mut);border-radius:8px;padding:5px 11px}
+.seg button.on{background:var(--c);border-color:var(--c);color:#fff}
+.empty{text-align:center;color:var(--mut);padding:26px!important}
+.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,30px);background:#1e2433;color:#fff;padding:11px 20px;border-radius:12px;opacity:0;pointer-events:none;transition:.25s;z-index:9}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.seg.big button{padding:11px 26px;font-size:14px;border-color:var(--c);color:var(--c)}.seg.big button:hover{background:var(--c);color:#fff}
+.ph{display:none}
+@media(max-width:900px){.app{grid-template-columns:1fr}.side{position:static;height:auto;padding:14px}.nav{flex-direction:row;overflow-x:auto}.nav button{white-space:nowrap}.main{padding:16px}.stats{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}}
+@media print{.side,.no-print,.toast{display:none!important}.app{display:block}.page{display:none!important}#laporan{display:block!important}
+.card{box-shadow:none;border:0}.ph{display:block;text-align:center;margin-bottom:12px}body{background:#fff;color:#000}.main{padding:0}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+  <div class="brand"><div><b>Absensi Siswa</b><small>Manajemen Kehadiran</small></div></div>
+  <nav class="nav" id="nav">
+    <button data-p="dashboard" class="on"><i>◔</i>Dashboard</button>
+    <button data-p="absensi"><i>✓</i>Absensi</button>
+    <button data-p="siswa"><i>☺</i>Data Siswa<em id="navN">0</em></button>
+    <button data-p="laporan"><i>▤</i>Laporan</button>
+  </nav>
+</aside>
+<main class="main">
+<div class="top"><div><h1 id="title">Dashboard</h1><p id="sub"></p></div></div>
+
+<section id="dashboard" class="page on">
+  <div class="card no-print" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><b>Tanggal:</b><input type="date" id="dDate"><span class="mut" id="dInfo"></span></div>
+  <div class="stats">
+    <div class="stat" style="--c:var(--pri)"><small>TERCATAT</small><b id="sT">0</b></div>
+    <div class="stat hadir"><small>HADIR</small><b id="sH">0</b></div>
+    <div class="stat izin"><small>IZIN</small><b id="sI">0</b></div>
+    <div class="stat sakit"><small>SAKIT</small><b id="sS">0</b></div>
+    <div class="stat alpa"><small>ALPA</small><b id="sA">0</b></div>
+  </div>
+  <div class="card"><div class="head"><h2>Daftar absensi hari ini</h2><button class="btn pri no-print" onclick="go('absensi')">Catat absensi →</button></div>
+  <div class="tw"><table><thead><tr><th>No</th><th>Nama</th><th>Kelas</th><th>Status</th><th>Keterangan</th></tr></thead><tbody id="dTable"></tbody></table></div></div>
+</section>
+
+<section id="absensi" class="page">
+  <div class="card"><h2>Input Absensi</h2><p class="mut">Ketik nama dan kelas, lalu klik status kehadiran. Data siswa terisi otomatis dari absensi.</p>
+  <div class="form" style="margin:14px 0">
+    <div><label>Tanggal</label><input type="date" id="aDate"></div>
+    <div><label>Nama</label><input id="qNama" list="namaOpt" placeholder="Ketik nama siswa" autocomplete="off"><datalist id="namaOpt"></datalist></div>
+    <div><label>Kelas</label><input id="qKelas" list="kelasOpt" placeholder="Ketik kelas" autocomplete="off"><datalist id="kelasOpt"></datalist></div>
+    <div><label>Keterangan (opsional)</label><input id="qKet" placeholder="Contoh: acara keluarga"></div>
+  </div>
+  <div class="seg big"><button class="hadir" onclick="quick('Hadir')">Hadir</button><button class="izin" onclick="quick('Izin')">Izin</button><button class="sakit" onclick="quick('Sakit')">Sakit</button><button class="alpa" onclick="quick('Alpa')">Alpa</button></div></div>
+</section>
+
+<section id="siswa" class="page">
+  <div class="card"><div class="head"><div><h2>Data Siswa</h2><p class="mut">Daftar ini terisi otomatis dari hasil absensi.</p></div></div>
+  <div class="filters" style="margin-bottom:12px"><input type="search" id="sQ" placeholder="Cari nama atau kelas"></div>
+  <div class="tw"><table><thead><tr><th>No</th><th>Nama</th><th>Kelas</th><th>Hadir</th><th>Izin</th><th>Sakit</th><th>Alpa</th><th>Total</th><th>Aksi</th></tr></thead><tbody id="sTable"></tbody></table></div></div>
+</section>
+
+<section id="laporan" class="page">
+  <div class="card"><div class="head"><div><h2>Rekap Absensi</h2><p class="mut">Rekap kehadiran setiap siswa.</p></div>
+  <div class="no-print" style="display:flex;gap:8px"><button class="btn" onclick="csv()">↓ CSV</button><button class="btn pri" onclick="window.print()">Cetak</button></div></div>
+  <div class="ph"><h2>LAPORAN REKAP ABSENSI SISWA</h2><p id="lPer"></p></div>
+  <div class="filters no-print" style="margin-bottom:12px"><input type="date" id="lA"><input type="date" id="lB"><input id="lK" list="kelasOpt" placeholder="Ketik kelas (kosong = semua)" autocomplete="off"></div>
+  <div class="tw"><table><thead><tr><th>No</th><th>Nama</th><th>Kelas</th><th>Hadir</th><th>Izin</th><th>Sakit</th><th>Alpa</th><th>Total</th></tr></thead><tbody id="lTable"></tbody></table></div></div>
+</section>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id),SK="ma3_siswa",AK="ma3_absen",ST=["Hadir","Izin","Sakit","Alpa"];
+const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const ds=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const today=ds(new Date());
+function load(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null}catch{return null}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+
+let [students,att]=[load(SK),load(AK)];
+if(!students||!att){students=[];att=[];save(SK,students);save(AK,att)}
+const persist=()=>{students=students.filter(s=>att.some(a=>a.siswaId===s.id));save(SK,students);save(AK,att)};
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(window.tt);window.tt=setTimeout(()=>t.classList.remove("on"),2200)}
+const find=(id,d)=>att.find(x=>x.siswaId===id&&x.tanggal===d);
+const fdate=v=>new Date(v+"T00:00:00").toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+const kelasList=()=>[...new Set(students.map(s=>s.kelas))].sort();
+const av=n=>`<span class="av">${esc(n.trim()[0]||"?")}</span>`;
+const badge=s=>s?`<span class="badge ${s.toLowerCase()}">${s}</span>`:`<span class="badge belum">Belum</span>`;
+const empty=(c,t)=>`<tr><td colspan="${c}" class="empty">${t}</td></tr>`;
+
+const titles={dashboard:["Dashboard","Ringkasan kehadiran siswa."],absensi:["Absensi","Ketik nama dan kelas, lalu pilih status."],siswa:["Data Siswa","Daftar siswa dari hasil absensi."],laporan:["Laporan","Rekap kehadiran dan unduh laporan."]};
+function go(p){document.querySelectorAll(".page").forEach(e=>e.classList.toggle("on",e.id===p));
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.p===p));
+  $("title").textContent=titles[p][0];$("sub").textContent=titles[p][1];renderAll()}
+$("nav").onclick=e=>{const b=e.target.closest("button");if(b)go(b.dataset.p)};
+
+function renderDash(){
+  const d=$("dDate").value||today,rows=att.filter(a=>a.tanggal===d).map(a=>({a,s:students.find(s=>s.id===a.siswaId)})).filter(x=>x.s);
+  const c=k=>rows.filter(x=>x.a.status===k).length;
+  $("sT").textContent=rows.length;$("sH").textContent=c("Hadir");$("sI").textContent=c("Izin");$("sS").textContent=c("Sakit");$("sA").textContent=c("Alpa");
+  $("dInfo").textContent=fdate(d);
+  $("dTable").innerHTML=rows.length?rows.map((x,i)=>`<tr><td>${i+1}</td><td>${av(x.s.nama)}<b>${esc(x.s.nama)}</b></td><td>${esc(x.s.kelas)}</td><td>${badge(x.a.status)}</td><td>${esc(x.a.ket)}</td></tr>`).join(""):empty(5,"Belum ada absensi pada tanggal ini. Klik Catat absensi untuk mulai.")}
+function quick(st){
+  const n=$("qNama").value.trim(),k=$("qKelas").value.trim(),d=$("aDate").value||today;
+  if(!n||!k){toast("Isi nama dan kelas dulu.");return}
+  let x=students.find(s=>s.nama.toLowerCase()===n.toLowerCase()&&s.kelas.toLowerCase()===k.toLowerCase());
+  if(!x){x={id:Math.max(0,...students.map(s=>s.id))+1,nama:n,kelas:k};students.push(x)}
+  const ket=$("qKet").value.trim()||"-",a=find(x.id,d);
+  if(a){a.status=st;a.ket=ket}else att.push({siswaId:x.id,tanggal:d,status:st,ket});
+  persist();$("qNama").value=$("qKet").value="";toast(x.nama+" dicatat "+st);renderAll();$("qNama").focus()}
+$("qNama").addEventListener("input",e=>{const m=students.filter(s=>s.nama.toLowerCase()===e.target.value.trim().toLowerCase());if(m.length===1)$("qKelas").value=m[0].kelas});
+
+function renderAbs(){
+  $("namaOpt").innerHTML=[...new Set(students.map(s=>s.nama))].map(n=>`<option value="${esc(n)}">`).join("");
+  $("kelasOpt").innerHTML=kelasList().map(k=>`<option value="${esc(k)}">`).join("")}
+
+function delSiswa(id){if(!confirm("Hapus siswa ini beserta seluruh data absensinya?"))return;
+  att=att.filter(a=>a.siswaId!==id);persist();toast("Siswa dihapus.");renderAll()}
+function setKelas(id,v){v=v.trim();const x=students.find(s=>s.id===id);
+  if(!v){toast("Kelas tidak boleh kosong.");renderAll();return}
+  x.kelas=v;persist();toast("Kelas diperbarui.");renderAll()}
+function renderSiswa(){const q=$("sQ").value.toLowerCase();
+  const rows=students.filter(s=>(s.nama+" "+s.kelas).toLowerCase().includes(q)).map(s=>{const r=att.filter(a=>a.siswaId===s.id),n=t=>r.filter(a=>a.status===t).length;return{...s,h:n("Hadir"),i:n("Izin"),s:n("Sakit"),a:n("Alpa"),t:r.length}});
+  $("sTable").innerHTML=rows.length?rows.map((x,i)=>`<tr><td>${i+1}</td><td>${av(x.nama)}<b>${esc(x.nama)}</b></td><td><input value="${esc(x.kelas)}" list="kelasOpt" autocomplete="off" style="width:130px" onchange="setKelas(${x.id},this.value)"></td><td>${x.h}</td><td>${x.i}</td><td>${x.s}</td><td>${x.a}</td><td><b>${x.t}</b></td><td><button class="btn del" onclick="delSiswa(${x.id})">Hapus</button></td></tr>`).join(""):empty(9,"Belum ada siswa. Data muncul otomatis setelah absensi dicatat.");
+  $("navN").textContent=students.length}
+
+function lapRows(){const a=$("lA").value,b=$("lB").value,k=$("lK").value.trim().toLowerCase();
+  return students.filter(s=>!k||s.kelas.toLowerCase().includes(k)).map(s=>{const r=att.filter(x=>x.siswaId===s.id&&(!a||x.tanggal>=a)&&(!b||x.tanggal<=b)),n=t=>r.filter(x=>x.status===t).length;
+    return{...s,h:n("Hadir"),i:n("Izin"),s:n("Sakit"),a:n("Alpa"),t:r.length}})}
+function renderLap(){const a=$("lA").value,b=$("lB").value;
+  $("lPer").textContent="Periode: "+(a||b?(a||"awal")+" s.d. "+(b||"sekarang"):"Semua tanggal")+" | "+($("lK").value.trim()||"Semua kelas");
+  const rows=lapRows();
+  $("lTable").innerHTML=rows.length?rows.map((x,i)=>`<tr><td>${i+1}</td><td>${av(x.nama)}<b>${esc(x.nama)}</b></td><td>${esc(x.kelas)}</td><td>${x.h}</td><td>${x.i}</td><td>${x.s}</td><td>${x.a}</td><td><b>${x.t}</b></td></tr>`).join(""):empty(8,"Belum ada data.")}
+function csv(){let o="Nama,Kelas,Hadir,Izin,Sakit,Alpa,Total\n"+lapRows().map(x=>[x.nama,x.kelas,x.h,x.i,x.s,x.a,x.t].map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
+  const l=document.createElement("a");l.href=URL.createObjectURL(new Blob([o],{type:"text/csv;charset=utf-8"}));l.download="laporan_absensi.csv";l.click()}
+
+function renderAll(){renderDash();renderAbs();renderSiswa();renderLap()}
+$("dDate").value=$("aDate").value=today;
+["dDate","sQ","lA","lB","lK"].forEach(i=>$(i).addEventListener(["sQ","lK"].includes(i)?"input":"change",renderAll));
+go("dashboard");
+</script>
+</body>
+</html>
